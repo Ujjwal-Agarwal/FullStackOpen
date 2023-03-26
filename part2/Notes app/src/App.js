@@ -1,5 +1,14 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Note from "./components/Note";
+import axios from 'axios';
+
+// const promise = axios.get('http://localhost:3001/notes')
+// promise.then(response => {
+//   console.log(response)
+// })
+
+// const promise2 = axios.get('http://localhost:3001/foobar')
+// console.log(promise2);
 
 const App = (props) => {
   const [notes, setNotes] = useState(props.notes);
@@ -14,7 +23,7 @@ const App = (props) => {
       important: Math.random() < 0.5,
       id: notes.length + 1,
     };
-    if (newNote.length != 0) {
+    if (newNote.length !== 0) {
       setNotes(notes.concat(noteObject));
     }
     setNewNote("");
@@ -26,9 +35,19 @@ const App = (props) => {
 
   const notesToShow = showAll ? notes : notes.filter(note => note.important===true)
   const changePriority = ()=>{
-    const temp = showAll;
     setShowAll(!showAll)
   }
+
+  useEffect(() => {
+    console.log('effect')
+    axios
+      .get('http://localhost:3001/notes')
+      .then(response => {
+        console.log('promise fulfilled')
+        setNotes(response.data)
+      })
+  }, [])
+  // console.log('render', notes.length, 'notes')
 
   return (
     <div>

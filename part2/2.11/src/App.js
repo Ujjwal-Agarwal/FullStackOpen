@@ -3,7 +3,9 @@ import Search from "./components/Search";
 import Form from "./components/Form";
 import PhoneBook from "./components/PhoneBook";
 import PersonsService from "./services/Persons";
-import idService from "./services/idService";
+import Notification from "./components/Notification"
+// import idService from "./services/idService";
+
 
 const App = () => {
   // const [persons, setPersons] = useState([
@@ -18,6 +20,9 @@ const App = () => {
   // const [showAll,setShowAll] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [personsToShow, setPersonsToShow] = useState(persons);
+  const[statusMessage,setStatusMessage] = useState('');
+  const [notificationClass,setNotificationClass] = useState('error-msg');
+  const [showNotification,setShowNotification]=useState(false);
 
   const changeCurrentText = (event) => {
     // console.log(event.target.value);
@@ -29,7 +34,7 @@ const App = () => {
 
   const addtoPB = (event) => {
     event.preventDefault();
-    let newId=0;
+    // let newId=0;
     
     const personObject = {
       name: currentText,
@@ -53,6 +58,12 @@ const App = () => {
         if (personObject.name.includes(searchText)) {
           setPersonsToShow(personsToShow.concat(personObject));
         }
+        setStatusMessage(`Person with name ${personObject.name} has been added to the directory`);
+        setShowNotification(true)
+        setNotificationClass('notification-bar');
+        setTimeout(()=>{
+          setShowNotification(false)
+        },5000)
       } else {
         // alert(`${currentText} already exists in the DB`);
         const newPersonobject = {...personObject,id:persons.find((person)=>person.name===currentText).id}
@@ -73,6 +84,13 @@ const App = () => {
 
           setPersonsToShow(persons.map(person=> person.id!== resData.id? person : resData))
 
+        }).catch(error=>{
+          setStatusMessage(`Person with name ${personObject.name} is not available in the directory anymore`);
+          setShowNotification(true)
+          setNotificationClass('error-msg');
+        setTimeout(()=>{
+          setShowNotification(false)
+        },5000)
         })
       }
     } else if (
@@ -123,6 +141,7 @@ const App = () => {
       {/* <div>Search: <input onChange={handleSearchChange}/></div> */}
       <Search onChange={handleSearchChange} />
       <hr></hr>
+      <Notification class={notificationClass} message={statusMessage} status={showNotification} />
 
       <Form
         onSubmit={addtoPB}
